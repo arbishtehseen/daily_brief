@@ -1,3 +1,11 @@
-venv/
+# Database files
+*.db
+*.sqlite3
+*.sqlite
+
+# Environment variables
 .env
+
+# Python cache & virtual environment
 __pycache__/
+venv/
