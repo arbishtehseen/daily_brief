@@ -1,28 +1,42 @@
 from scrapper import scrape_news
 from summarizer import summarize_headlines
 from notifier import send_email
+from database import init_db, is_headline_sent, save_headline
 
-URL = "https://www.dawn.com"
-
-# runs the whole pipeline: scrape -> summarize -> email
 def run_daily_brief():
     print("Starting DailyBrief...")
+    
+    init_db()
 
-    # step 1: scrape
+    URL = "https://www.dawn.com"
+    
     headlines = scrape_news(URL)
     if not headlines:
-        print("No headlines scraped. Stopping.")
+        print("No headlines scraped. Stopping execution.")
+        return False
+    new_headlines = []
+    for h in headlines:
+        if not is_headline_sent(h):
+            new_headlines.append(h)
+            save_headline(h)
+
+    if not new_headlines:
+        print("No new headlines found! All headlines have already been sent. Stopping.")
         return False
 
-    # step 2: summarize (English + Urdu)
-    english, urdu = summarize_headlines(headlines)
+    print(f"Total {len(new_headlines)} new headlines found. Processing summaries...")
+
+ 
+    english, urdu = summarize_headlines(new_headlines)
     if not english or not urdu:
-        print("Summary failed. Stopping, no email sent.")
+        print("Summary generation failed. Stopping, no email sent.")
         return False
 
-    # step 3: combine content and send email (matching notifier.py's single argument)
-    email_content = f"--- ENGLISH SUMMARY ---\n{english}\n\n--- URDU SUMMARY ---\n{urdu}"
-    return send_email(email_content)
+    success = send_email(english, urdu)
+    if success:
+        print("Daily Brief workflow completed successfully!")
+    
+    return success
 
 if __name__ == "__main__":
     run_daily_brief()
