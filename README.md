@@ -1,74 +1,70 @@
-# 📰 Daily Brief (Smart News Digest & AI Summarizer)
+# 📰  Daily Brief — Automated News Intelligence Pipeline
 
-An automated backend pipeline that scrapes daily news headlines from [Dawn News](https://www.dawn.com), processes and cleans them, generates structured **bilingual summaries (English & Urdu)** using Groq AI, and delivers them directly to your inbox via secure Gmail SMTP. Built with a robust, modular software engineering architecture and automated via a background scheduler.
+A production-grade, stateful backend pipeline built in Python that automatically ingests live news headlines, generates bilingual summaries using Groq LLM API, manages local state persistence to prevent duplicate content, and delivers structured HTML email briefings.
 
 ---
 
-## 🛠️ Project Architecture & Modular Design
+## 🎯 Key Features
 
-The project follows a clean separation-of-concerns design pattern:
+- **Automated Data Ingestion:** Scrapes real-time headline data and metadata using BeautifulSoup4.
+- **LLM-Powered Summarization:** Leverages the Groq API (Llama-3) for bilingual intelligence synthesis (English & Urdu).
+- **State Persistence & Deduplication:** Integrates an SQLite database layer to track processed articles, avoiding duplicate emails and unnecessary API execution.
+- **Responsive Email Delivery:** Dispatches styled HTML/CSS email templates with custom typography and native Right-to-Left (`RTL`) text layout support for Urdu content.
+- **Modular Architecture:** Structured with strict separation of concerns across scraping, processing, storage, and notification modules.
+
+---
+
+## 🛠️ System Architecture & Tech Stack
+
+- **Language:** Python 3.x
+- **Scraping Engine:** `beautifulsoup4`, `requests`
+- **AI Processing:** `groq` SDK
+- **Database Layer:** SQLite3
+- **Notification Engine:** `smtplib`, `email.mime`
+- **Environment Management:** `python-dotenv`
+
+---
+
+## 📁 Repository Structure
 
 ```text
-daily_brief/
-│
-├── scrapper.py       # Handles HTTP requests, robust error handling, and DOM parsing
-├── summarizer.py     # Interfaces with Groq API, formats prompts, and splits bilingual text
-├── notifier.py       # Manages secure MIME multipart email delivery via Gmail SMTP
-├── helpers.py        # Contains utility functions for filtering, cleaning, and deduplication
-├── scheduler.py      # Runs non-blocking background execution loops using the schedule library
-├── main.py           # Core orchestrator tying the entire pipeline together
+├── database.py       # SQLite connection, schema initialization, and state tracking
+├── main.py           # Pipeline orchestrator and main execution flow
+├── notifier.py       # Email formatting, HTML/CSS layout rendering, and SMTP delivery
+├── scrapper.py       # Web scraping logic for news extraction
+├── summarizer.py     # Groq API integration for bilingual summarization
 ├── requirements.txt  # Project dependencies
-└── .env              # Environment credentials (Git-ignored for security)
+└── README.md         # Project documentation
 
-⚙️ Tech Stack & Dependencies
-Language: Python 3.10+
-
-Web Scraping: requests, BeautifulSoup4
-
-AI & LLM Integration: groq (leveraging high-speed LLMs for structured summarization)
-
-Email Automation: Python built-in smtplib, email.mime
-
-Text Processing & Bidi: arabic-reshaper, python-bidi (for proper Urdu rendering)
-
-Automation: schedule
-
-🚀 Key Features
-Robust Error Handling: Built-in connection timeouts, invalid URL checks, and graceful exception handling for network instabilities.
-
-Structured Bilingual LLM Prompting: Enforces strict formatting guidelines to output clean bullet points grouped by topic in both English and Urdu.
-
-Secure Credential Management: Utilizes environment variables (python-dotenv) and Gmail App Passwords to secure SMTP transmissions.
-
-Automation Ready: Configured with a non-blocking scheduler loop to execute daily briefs reliably.
-
-Installation & Setup
+⚙️ Setup & Installation
 1. Clone the Repository
 Bash
 git clone [https://github.com/arbishtehseen/daily_brief.git](https://github.com/arbishtehseen/daily_brief.git)
 cd daily_brief
-2. Create and Activate Virtual Environment
+2. Set Up Virtual Environment
 Bash
 python -m venv venv
-# On Windows (PowerShell):
-.\venv\Scripts\Activate
-# On macOS/Linux:
+# On Windows:
+venv\Scripts\activate
+# On Linux/macOS:
 source venv/bin/activate
 3. Install Dependencies
 Bash
 pip install -r requirements.txt
 4. Configure Environment Variables
-Create a .env file in the root directory and add your credentials:
+Create a .env file in the root directory and specify the following keys:
 
 Code snippet
 GROQ_API_KEY=your_groq_api_key_here
-SENDER_EMAIL=your_email@gmail.com
-SENDER_PASSWORD=your_gmail_app_password_here
+SENDER_EMAIL=your_gmail_address@gmail.com
+SENDER_PASSWORD=your_app_passcode_here
 RECEIVER_EMAIL=recipient_email@gmail.com
-💻 Usage
-Run Manually (One-time Pipeline Execution):
+🚀 Execution
+Run the main orchestration script:
+
 Bash
 python main.py
-Run Automated Background Scheduler:
-Bash
-python scheduler.py
+🔒 Security & Privacy Notice
+Sensitive credentials and database binaries (.env, *.db) are strictly excluded from version control via .gitignore.
+
+Password authentication uses Gmail App Passwords over TLS encryption via SMTP.
